@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bypass Tool - Hệ Thống Vượt Link Tự Động</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(18, 24, 38, 0.7);
+            --border-color: rgba(0, 243, 255, 0.2);
+            --accent-glow: #00f3ff;
+            --accent-pink: #ff007f;
+            --text-main: #ffffff;
+            --text-sub: #8c9bae;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .header-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+
+        .header-card h1 {
+            font-size: 20px;
+            color: var(--accent-glow);
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .header-card p {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Lưới chọn dịch vụ link */
+        .link-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .link-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .link-btn:hover, .link-btn.active {
+            border-color: var(--accent-glow);
+            background: rgba(0, 243, 255, 0.05);
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+        .selected-info {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .selected-info span {
+            color: var(--accent-pink);
+            font-weight: bold;
+        }
+
+        /* Ô nhập URL */
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            font-size: 11px;
+            color: var(--text-sub);
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .url-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0 12px;
+        }
+
+        .url-input-wrapper input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            padding: 12px 8px;
+            font-size: 13px;
+        }
+
+        .action-btn {
+            width: 100%;
+            background: linear-gradient(90deg, #00f3ff, #ff007f);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 14px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Bảng trạng thái */
+        .status-box {
+            display: none;
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+
+        .status-badge {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--accent-glow);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .status-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-item label {
+            font-size: 10px;
+            color: var(--text-sub);
+            display: block;
+        }
+
+        .status-item val {
+            font-size: 12px;
+            color: var(--accent-glow);
+        }
+
+        .log-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .log-step {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .log-step.success {
+            border-color: rgba(0, 255, 100, 0.3);
+            color: #00ff64;
+            background: rgba(0, 255, 100, 0.02);
+        }
+
+        .result-box {
+            display: none;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 255, 100, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .result-box h3 {
+            color: #00ff64;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .result-file {
+            font-size: 13px;
+            margin-bottom: 12px;
+            word-break: break-all;
+        }
+
+        .download-btn {
+            background: linear-gradient(90deg, #00ff64, #00f3ff);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Tiêu đề -->
+    <div class="header-card">
+        <h1>⚡ BYPASS TOOL</h1>
+        <p>HỆ THỐNG VƯỢT LINK TỰ ĐỘNG - V2.4</p>
+    </div>
+
+    <!-- Chọn nền tảng rút gọn -->
+    <div class="section-card">
+        <div class="section-title">📌 ẤN CHỌN CÁC LINK TRÊN ĐỂ XÁC NHẬN</div>
+        <div class="link-grid">
+            <div class="link-btn" onclick="selectProvider(this, 'Gtraffic.io')">Gtraffic.io</div>
+            <div class="link-btn" onclick="selectProvider(this, 'Link4m')">Link4m</div>
+            <div class="link-btn" onclick="selectProvider(this, 'Layma.net')">Layma.net</div>
+            <div class="link-btn" onclick="selectProvider(this, 'Traffic4k.com')">Traffic4k.com</div>
+            <div class="link-btn" onclick="selectProvider(this, 'Site2s.com')">Site2s.com</div>
+            <div class="link-btn" onclick="selectProvider(this, 'Bbmkt.com')">Bbmkt.com</div>
+            <div class="link-btn" onclick="selectProvider(this, 'Ontop.link')">Ontop.link</div>
+        </div>
+        <div class="selected-info">Đã chọn: <span id="currentProvider">Chưa chọn</span></div>
+    </div>
+
+    <!-- Nhập URL -->
+    <div class="section-card">
+        <div class="section-title">🔗 DÁN URL CỦA WEB CẦN VƯỢT LINK</div>
+        <div class="input-group">
+            <label>Chỉ chấp nhận dạng https://</label>
+            <div class="url-input-wrapper">
+                <input type="text" id="targetUrl" placeholder="https://...">
+            </div>
+        </div>
+        <button class="action-btn" onclick="startBypass()">VƯỢT LINK</button>
+    </div>
+
+    <!-- Bảng trạng thái chạy mô phỏng -->
+    <div class="section-card status-box" id="statusBox">
+        <div class="status-header">
+            <span>BẢNG TRẠNG THÁI</span>
+            <span class="status-badge" id="statusBadge">ĐANG XỬ LÝ</span>
+        </div>
+        
+        <div class="status-grid">
+            <div class="status-item">
+                <label>THỜI GIAN</label>
+                <val id="currentTime">--:--:--</val>
+            </div>
+            <div class="status-item">
+                <label>IP THIẾT BỊ</label>
+                <val>171.244.186.97</val>
+            </div>
+        </div>
+
+        <div class="log-container">
+            <div class="log-step" id="step1">⏳ Trạng thái: Sẵn sàng</div>
+            <div class="log-step" id="step2">⏳ Đang kiểm tra kết nối...</div>
+            <div class="log-step" id="step3">⏳ Đang tải module...</div>
+            <div class="log-step" id="step4">⏳ Đang giả lập bypass...</div>
+            <div class="log-step" id="step5">⏳ Bỏ qua xác thực...</div>
+            <div class="log-step" id="step6">⏳ Đang xác nhận...</div>
+        </div>
+
+        <!-- Kết quả thành công (Ví dụ file tải) -->
+        <div class="result-box" id="resultBox">
+            <h3>🎉 BYPASS THÀNH CÔNG</h3>
+            <div class="result-file" id="resultFileName">📄 Minecraft_PE_26.30_BANDISHARE.apk</div>
+            <button class="download-btn" onclick="alert('Đang tải xuống tệp tin...')">TẢI XUỐNG NGAY</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedProviderName = "";
+
+    function selectProvider(element, name) {
+        document.querySelectorAll('.link-btn').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+        selectedProviderName = name;
+        document.getElementById('currentProvider').innerText = name;
+    }
+
+    function startBypass() {
+        const urlInput = document.getElementById('targetUrl').value.trim();
+        if(!urlInput.startsWith('https://')) {
+            alert('Vui lòng nhập đúng định dạng https://');
+            return;
+        }
+
+        // Hiện bảng trạng thái
+        const statusBox = document.getElementById('statusBox');
+        statusBox.style.display = 'block';
+        
+        // Cập nhật thời gian hiện tại
+        const now = new Date();
+        document.getElementById('currentTime').innerText = `${now.getDate().toString().padStart(2,'0')}/${(now.getMonth()+1).toString().padStart(2,'0')}/${now.getFullYear()} ${now.toLocaleTimeString()}`;
+
+        // Reset trạng thái log
+        const steps = ['step1', 'step2', 'step3', 'step4', 'step5', 'step6'];
+        steps.forEach(s => {
+            const el = document.getElementById(s);
+            el.className = "log-step";
+            el.innerHTML = el.innerHTML.replace('✅', '⏳');
+        });
+        document.getElementById('resultBox').style.display = 'none';
+        document.getElementById('statusBadge').innerText = "ĐANG XỬ LÝ";
+
+        // Mô phỏng chuỗi quy trình xử lý tự động
+        setTimeout(() => updateStep('step1', 'Trạng thái: Sẵn sàng'), 500);
+        setTimeout(() => updateStep('step2', 'Đang kiểm tra kết nối...'), 1200);
+        setTimeout(() => markSuccess('step2', 'Kết nối thành công!'), 2000);
+        
+        setTimeout(() => updateStep('step3', 'Đang tải module...'), 2600);
+        setTimeout(() => markSuccess('step3', 'Tải module hoàn tất!'), 3400);
+
+        setTimeout(() => updateStep('step4', 'Đang giả lập bypass...'), 4000);
+        setTimeout(() => updateStep('step5', 'Bỏ qua xác thực...'), 4800);
+        setTimeout(() => updateStep('step6', 'Đang xác nhận...'), 5500);
+        
+        setTimeout(() => {
+            markSuccess('step6', 'Bypass thành công!');
+            document.getElementById('statusBadge').innerText = "HOÀN TẤT";
+            document.getElementById('resultBox').style.display = 'block';
+        }, 6500);
+    }
+
+    function updateStep(id, text) {
+        const el = document.getElementById(id);
+        el.innerHTML = `⏳ ${text}`;
+    }
+
+    function markSuccess(id, text) {
+        const el = document.getElementById(id);
+        el.className = "log-step success";
+        el.innerHTML = `✅ ${text}`;
+    }
+</script>
+
+</body>
+</html>
